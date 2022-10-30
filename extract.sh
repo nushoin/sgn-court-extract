@@ -15,12 +15,12 @@ fi
 xml_extract() {
   XML_BASE_PATH='.DocumentEnvelope.SignaturePackage.Signature.Object'
   XML_MY_PATH="${XML_BASE_PATH}.$1"
-  xq -r "$XML_MY_PATH" "$SRC_FILENAME"
+  yq -p xml -r "$XML_MY_PATH" "$SRC_FILENAME"
 }
 
-DEST_BASENAME="$(xml_extract 'DocumentOriginName["#text"]')"
-DEST_EXTENSION="$(xml_extract 'DocumentExtension["#text"]')"
+DEST_BASENAME="$(xml_extract 'DocumentOriginName["+content"]')"
+DEST_EXTENSION="$(xml_extract 'DocumentExtension["+content"]')"
 DEST_FILENAME="${DEST_BASENAME}.${DEST_EXTENSION}"
 (! [ -f "$DEST_FILENAME" ]) || (echo "Filename $DEST_FILENAME already exists"; exit 1)
 echo "Extracting $DEST_FILENAME"
-xml_extract 'DocumentContent["#text"]' | base64 --decode >"$DEST_FILENAME"
+xml_extract 'DocumentContent["+content"]' | base64 --decode >"$DEST_FILENAME"
